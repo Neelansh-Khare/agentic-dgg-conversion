@@ -5,3 +5,5 @@ openai
 langchain
 chromadb
 numpy
+pypdf
+langchain-text-splitters
