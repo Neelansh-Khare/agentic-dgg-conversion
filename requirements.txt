@@ -1,0 +1,7 @@
+requests
+python-dotenv
+pydantic
+openai
+langchain
+chromadb
+numpy
