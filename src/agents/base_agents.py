@@ -38,15 +38,29 @@ class PureMathAgent(BaseAgent):
 class DGGMLBridgeAgent(BaseAgent):
     """
     Bridge to colleague's agent. 
-    In a real scenario, this would call their API or execute their CLI.
+    Passes the foundational math representation directly to the external agent,
+    which is responsible for the final DGGML conversion.
     """
     def _setup_system_prompt(self) -> str:
-        return "You are the DGGML Bridge. You convert internal DGG logic to DGGML syntax for the external agent."
+        return (
+            "You are the DGGML Interface. Your role is to take foundational "
+            "mathematical representations of DGGs and prepare them for transmission "
+            "to the specialized DGGML generation agent."
+        )
 
-    def call_colleague_agent(self, data: str):
-        # Placeholder for real integration (e.g., requests.post to their endpoint)
-        print(f"[Bridge] Sending data to colleague's agent...")
-        return {"status": "success", "output": f"<dggml>{data}</dggml>"}
+    def call_colleague_agent(self, math_representation: str):
+        """
+        Sends the foundational math to the colleague's agent.
+        Placeholder for real integration (API call or CLI execution).
+        """
+        print(f"[Bridge] Transmitting math representation to colleague's agent...")
+        # Integration logic (e.g., requests.post) will go here.
+        # For now, we simulate a successful handoff.
+        return {
+            "status": "transmitted",
+            "payload_sent": math_representation,
+            "message": "The external agent will now process this math into DGGML format."
+        }
 
 class OrchestrationAgent(BaseAgent):
     def __init__(self, client, memory, sub_agents):
