@@ -1,0 +1,5 @@
+- ODE
+- FEM
+- Markov's chains
+- PEE
+- Lattice model
