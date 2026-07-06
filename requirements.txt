@@ -7,3 +7,5 @@ chromadb
 numpy
 pypdf
 langchain-text-splitters
+pytest
+pytest-mock
