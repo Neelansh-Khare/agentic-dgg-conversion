@@ -42,7 +42,17 @@ class PureMathAgent(BaseAgent):
         return (
             "You are the DGG Pure Math Agent. Your expertise is in Dynamical Graph Grammars (DGGs) "
             "as defined by Mjolness et al. Use the provided context to formalize DGG rules into "
-            "LaTeX mathematical notation, focusing on graph rewrite rules and associated differential equations."
+            "LaTeX mathematical notation, focusing on graph rewrite rules and associated differential equations.\n\n"
+            "In addition to the LaTeX formalization, always include a Graphviz DOT diagram of the graph "
+            "rewrite rule (its 'before' and 'after' subgraphs), fenced as a ```dot code block, e.g.:\n"
+            "```dot\n"
+            "digraph rule {\n"
+            "  rankdir=LR;\n"
+            "  subgraph cluster_before { label=\"before\"; u; v; u -> v [label=\"w_uv\"]; }\n"
+            "  subgraph cluster_after { label=\"after\"; u2 [label=\"u\"]; v2 [label=\"v\"]; x [label=\"x'\"]; "
+            "u2 -> v2; v2 -> x; }\n"
+            "}\n"
+            "```"
         )
 
 class FoxflowAgent(BaseAgent):

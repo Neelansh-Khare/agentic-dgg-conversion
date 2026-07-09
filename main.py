@@ -1,8 +1,10 @@
 import os
 import json
+import webbrowser
 from dotenv import load_dotenv
 from src.agents.base_agents import OrchestrationAgent, PureMathAgent, FoxflowAgent
 from src.memory.vector_memory import VectorMemory
+from src.utils.render import render_result_to_html
 
 load_dotenv()
 
@@ -63,16 +65,25 @@ def main():
 
         print("-" * 40)
         print("FINAL OUTPUT:")
+        renderable_text = None
         if isinstance(result, dict):
             if "llm_output" in result:
                 print(f"LLM Representation:\n{result['llm_output']}")
                 print(f"API Result: {result['api_result']}")
+                renderable_text = result["llm_output"]
             elif "choices" in result:
-                print(result['choices'][0]['message']['content'])
+                renderable_text = result["choices"][0]["message"]["content"]
+                print(renderable_text)
             else:
                 print(json.dumps(result, indent=2))
         else:
             print(result)
+            renderable_text = str(result)
+
+        if renderable_text:
+            html_path = render_result_to_html(renderable_text)
+            print(f"[System] Rendered view: {html_path}")
+            webbrowser.open(html_path.resolve().as_uri())
 
     except ValueError as e:
         print(f"Configuration Error: {e}")
