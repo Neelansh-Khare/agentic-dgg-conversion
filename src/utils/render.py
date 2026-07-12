@@ -68,6 +68,39 @@ Viz.instance().then(viz => {{
 """
 
 
+def _is_dot_balanced(dot: str) -> bool:
+    """Checks that a DOT source has balanced quotes/braces and no stray
+    apostrophes outside of quoted strings, catching two common LLM failure
+    modes: an unclosed quote in a label (which makes viz.js's parser consume
+    the rest of the string looking for the close), and an unquoted identifier
+    like `v'` (an apostrophe is never valid in a bare DOT identifier)."""
+    in_string = False
+    depth = 0
+    i = 0
+    n = len(dot)
+    while i < n:
+        c = dot[i]
+        if in_string:
+            if c == "\\":
+                i += 2
+                continue
+            if c == '"':
+                in_string = False
+        else:
+            if c == '"':
+                in_string = True
+            elif c == "'":
+                return False
+            elif c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth < 0:
+                    return False
+        i += 1
+    return not in_string and depth == 0
+
+
 def _extract_dot_blocks(text: str):
     blocks = [m.strip() for m in DOT_BLOCK_RE.findall(text)]
     prose = DOT_BLOCK_RE.sub("", text).strip()
@@ -77,12 +110,25 @@ def _extract_dot_blocks(text: str):
 def render_result_to_html(text: str, label: str = "result") -> Path:
     """Renders agent output (prose/LaTeX + optional ```dot graph blocks) to a
     self-contained HTML file and returns its path."""
-    prose, graphs = _extract_dot_blocks(text)
+    prose, blocks = _extract_dot_blocks(text)
 
-    graph_sections = "\n".join(
-        f'<h2>Graph {i + 1}</h2><div class="panel graph" id="graph-{i}"></div>'
-        for i in range(len(graphs))
-    )
+    graphs = []
+    section_parts = []
+    for i, dot in enumerate(blocks):
+        if _is_dot_balanced(dot):
+            idx = len(graphs)
+            graphs.append(dot)
+            section_parts.append(
+                f'<h2>Graph {i + 1}</h2><div class="panel graph" id="graph-{idx}"></div>'
+            )
+        else:
+            escaped = dot.replace("&", "&amp;").replace("<", "&lt;")
+            section_parts.append(
+                f'<h2>Graph {i + 1}</h2>'
+                f'<div class="panel graph-error">Malformed graph syntax (unclosed quote or brace) '
+                f'&mdash; showing raw source:<pre>{escaped}</pre></div>'
+            )
+    graph_sections = "\n".join(section_parts)
 
     html = TEMPLATE.format(
         katex_css=(ASSETS_DIR / "katex.inline.css").read_text(encoding="utf-8"),

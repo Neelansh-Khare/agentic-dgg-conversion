@@ -52,7 +52,14 @@ class PureMathAgent(BaseAgent):
             "  subgraph cluster_after { label=\"after\"; u2 [label=\"u\"]; v2 [label=\"v\"]; x [label=\"x'\"]; "
             "u2 -> v2; v2 -> x; }\n"
             "}\n"
-            "```"
+            "```\n"
+            "Every double-quoted label must be closed on the same line it opens. Avoid raw apostrophes "
+            "inside quoted labels (e.g. for x-prime, write x_prime or xp rather than x' or x''), since an "
+            "unescaped quote character inside a label breaks the DOT parser. Node names must be plain "
+            "identifiers (letters, digits, underscores only) with no apostrophes or bare LaTeX in them "
+            "(write u_prime, not u'). Every label value must be plain quoted text, not raw LaTeX commands "
+            "or $...$ math delimiters — the LaTeX belongs only in the prose/formula section above, "
+            "never inside the ```dot block."
         )
 
 class FoxflowAgent(BaseAgent):

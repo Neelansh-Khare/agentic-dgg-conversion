@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import webbrowser
 from dotenv import load_dotenv
@@ -7,6 +8,14 @@ from src.memory.vector_memory import VectorMemory
 from src.utils.render import render_result_to_html
 
 load_dotenv()
+
+def _ensure_utf8_stdout():
+    """Windows consoles default to a legacy codepage (e.g. cp1252) that can't
+    encode characters LLM output commonly contains (unicode arrows, Greek
+    letters, etc.), which crashes print() with a UnicodeEncodeError."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
 
 def build_client():
     provider = os.getenv("LLM_PROVIDER", "zotgpt").lower()
@@ -20,6 +29,7 @@ def build_client():
         return ZotGPTClient()
 
 def main():
+    _ensure_utf8_stdout()
     print("=== DGG Agentic Conversion System PoC ===")
 
     try:
